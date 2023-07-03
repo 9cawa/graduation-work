@@ -14,11 +14,14 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MockServerContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import ru.altacloud.v2.avro.StationNoticeMessage;
+import ru.altacloud.v2.avro.StationNotification;
+import ru.altacloud.v2.avro.StationNotificationEventType;
+import ru.altacloud.v2.avro.StationNotificationMessageType;
 import ru.altagroup.notificationcenter.dto.SmsClientResponse;
 import ru.altagroup.notificationcenter.dto.SmsClientResult;
 import ru.altagroup.notificationcenter.dto.SmsClientStatus;
 import ru.altagroup.notificationcenter.entities.*;
-import ru.altagroup.notificationcenter.events.StationNotificationEvent;
 import ru.altagroup.notificationcenter.handlers.NotificationEventHandler;
 import ru.altagroup.notificationcenter.repositories.*;
 import ru.altagroup.notificationcenter.services.MessageGateway;
@@ -105,7 +108,7 @@ public class DndFilterTest {
         stationRepository.save(station);
 
         Dnd dnd = new Dnd();
-        dnd.setActive(Boolean.TRUE);
+        dnd.setIsActive(Boolean.TRUE);
         dnd.setZoneId("UTC");
 //        dnd.setStartTime(LocalTime.of(20,0));
 //        dnd.setEndTime(LocalTime.of(8,30));
@@ -138,12 +141,14 @@ public class DndFilterTest {
 
     @Test
     public void testDndFilterShouldNotSendMessages() throws MessagingException {
-        StationNotificationEvent event = new StationNotificationEvent();
+        StationNotification event = new StationNotification();
         event.setId(UUID.randomUUID());
         event.setTimestamp(DateTime.now().getMillis());
         event.setStationId(stationId);
-        StationNotificationEvent.Message message =
-                new StationNotificationEvent.Message(MessageType.STATION_EVENT, null, EventType.SLUDGE_RESET);
+        StationNoticeMessage message = new StationNoticeMessage();
+        message.setType(StationNotificationMessageType.STATION_EVENT);
+        message.setEvent(StationNotificationEventType.SLUDGE_RESET);
+        message.setCode("123");
         event.setMessage(message);
 
         notificationEventHandler.handle(event);

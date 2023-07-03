@@ -12,16 +12,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.altacloud.v2.avro.UserEvent;
+import ru.altacloud.v2.avro.UserEventType;
+import ru.altacloud.v2.avro.UserType;
 import ru.altagroup.notificationcenter.AuthenticationTestService;
 import ru.altagroup.notificationcenter.dto.DndRequest;
 import ru.altagroup.notificationcenter.entities.Recipient;
-import ru.altagroup.notificationcenter.entities.RecipientType;
-import ru.altagroup.notificationcenter.events.UserEvent;
 import ru.altagroup.notificationcenter.exceptions.NotFoundException;
+import ru.altagroup.notificationcenter.handlers.RecipientCreateEventHandler;
+import ru.altagroup.notificationcenter.handlers.RecipientDeleteEventHandler;
 import ru.altagroup.notificationcenter.repositories.DndRepository;
 import ru.altagroup.notificationcenter.repositories.NoticeSettingRepository;
 import ru.altagroup.notificationcenter.repositories.RecipientRepository;
-import ru.altagroup.notificationcenter.services.RecipientService;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -43,7 +45,8 @@ public class DndControllerIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private DndRepository dndRepository;
     @Autowired private NoticeSettingRepository noticeSettingRepository;
-    @Autowired private RecipientService recipientService;
+    @Autowired private RecipientCreateEventHandler createHandler;
+    @Autowired private RecipientDeleteEventHandler deleteHandler;
     @Autowired private RecipientRepository recipientRepository;
     private final AuthenticationTestService authenticationTestService = new AuthenticationTestService();
 
@@ -54,24 +57,24 @@ public class DndControllerIntegrationTest {
     public void setup() {
         UserEvent event = new UserEvent();
         event.setId(recipientId);
-        event.setType(RecipientType.INDIVIDUAL_PERSON);
+        event.setType(UserType.INDIVIDUAL_PERSON);
         event.setFullName("Aleksandr Aksenov");
-        event.setEmail("test@test.ru");
+        event.setEmail("a.aksenov@alta-group.ru");
         event.setPhone("79998887766");
-        event.setEvent("CREATE");
-        recipientService.listenUserEvent(event);
+        event.setEvent(UserEventType.CREATE);
+        createHandler.handle(event);
     }
 
     @AfterEach
     public void tearDown() {
         UserEvent deleteEvent = new UserEvent();
         deleteEvent.setId(recipientId);
-        deleteEvent.setType(RecipientType.INDIVIDUAL_PERSON);
+        deleteEvent.setType(UserType.INDIVIDUAL_PERSON);
         deleteEvent.setFullName("Aleksandr Aksenov");
-        deleteEvent.setEmail("test@test.ru");
+        deleteEvent.setEmail("a.aksenov@alta-group.ru");
         deleteEvent.setPhone("79998887766");
-        deleteEvent.setEvent("DELETE");
-        recipientService.listenUserEvent(deleteEvent);
+        deleteEvent.setEvent(UserEventType.DELETE);
+        deleteHandler.handle(deleteEvent);
     }
 
     @Test
@@ -81,12 +84,12 @@ public class DndControllerIntegrationTest {
 
         Assertions.assertEquals(1, dndRepository.count());
         Assertions.assertEquals(4, noticeSettingRepository.count());
-        Assertions.assertTrue(recipient.getDnd().isActive());
+        Assertions.assertTrue(recipient.getDnd().getIsActive());
     }
 
     @Test
     public void testGetDndStatusWhenAllIsOk() throws Exception {
-        var auth = authenticationTestService.auth("test@test.ru", "12345678");
+        var auth = authenticationTestService.auth("a.aksenov@alta-group.ru", "12345678");
 
         mockMvc.perform(get(GET_SET_DND_URI)
                         .header(HttpHeaders.AUTHORIZATION, auth.getToken_type() + " " + auth.getAccess_token())
@@ -111,7 +114,7 @@ public class DndControllerIntegrationTest {
         ObjectMapper mapper = JsonMapper.builder()
                 .findAndAddModules()
                 .build();
-        var auth = authenticationTestService.auth("test@test.ru", "12345678");
+        var auth = authenticationTestService.auth("a.aksenov@alta-group.ru", "12345678");
 
         mockMvc.perform(put(GET_SET_DND_URI)
                         .header(HttpHeaders.AUTHORIZATION, auth.getToken_type() + " " + auth.getAccess_token())

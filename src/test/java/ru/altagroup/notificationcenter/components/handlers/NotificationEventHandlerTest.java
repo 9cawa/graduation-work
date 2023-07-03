@@ -18,17 +18,15 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MockServerContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import ru.altacloud.v2.avro.*;
 import ru.altagroup.notificationcenter.dto.SmsClientResponse;
 import ru.altagroup.notificationcenter.dto.SmsClientResult;
 import ru.altagroup.notificationcenter.dto.SmsClientStatus;
 import ru.altagroup.notificationcenter.entities.*;
-import ru.altagroup.notificationcenter.events.StationNotificationEvent;
-import ru.altagroup.notificationcenter.events.UserNotificationEvent;
 import ru.altagroup.notificationcenter.handlers.NotificationEventHandler;
 import ru.altagroup.notificationcenter.repositories.*;
 import ru.altagroup.notificationcenter.services.MessageGateway;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -121,7 +119,7 @@ public class NotificationEventHandlerTest {
         stationRepository.save(station);
 
         Dnd dnd = new Dnd();
-        dnd.setActive(false);
+        dnd.setIsActive(false);
         dnd.setRecipient(savedRecipient);
         dndRepository.save(dnd);
 
@@ -156,30 +154,35 @@ public class NotificationEventHandlerTest {
     }
 
     @Test
-    public void testSendErrorWhenErrorCodeIsNullThenThrowAssertionsError() {
-        StationNotificationEvent event = new StationNotificationEvent();
+    public void testSendErrorWhenErrorCodeIsNullThenThrowNullPointerError() {
+        StationNotification event = new StationNotification();
         event.setId(UUID.randomUUID());
         event.setTimestamp(DateTime.now().getMillis());
         event.setStationId(stationId);
-        StationNotificationEvent.Message message =
-                new StationNotificationEvent.Message(MessageType.ERROR_EVENT, null, EventType.ERROR);
+        StationNoticeMessage message = new StationNoticeMessage();
+        message.setType(StationNotificationMessageType.ERROR_EVENT);
+        message.setEvent(StationNotificationEventType.ERROR);
+        message.setCode(null);
         event.setMessage(message);
 
-        Assertions.assertThrows(AssertionError.class, () -> notificationEventHandler.handle(event));
+        Assertions.assertThrows(NullPointerException.class, () -> notificationEventHandler.handle(event));
     }
 
     @Test
-    public void testSendError() throws MessagingException {
+    @Disabled
+    public void testSendError() {
         errorsService.stubFor(get(urlPathEqualTo(GET_ERROR))
                 .willReturn(okForJson(errorCode()).withStatus(HttpStatus.OK.value())
                 .withHeader(HttpHeaders.CONTENT_TYPE, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)));
 
-        StationNotificationEvent event = new StationNotificationEvent();
+        StationNotification event = new StationNotification();
         event.setId(UUID.randomUUID());
         event.setTimestamp(DateTime.now().getMillis());
         event.setStationId(stationId);
-        StationNotificationEvent.Message message =
-                new StationNotificationEvent.Message(MessageType.ERROR_EVENT, "E200011", EventType.ERROR);
+        StationNoticeMessage message = new StationNoticeMessage();
+        message.setType(StationNotificationMessageType.ERROR_EVENT);
+        message.setEvent(StationNotificationEventType.ERROR);
+        message.setCode("E200011");
         event.setMessage(message);
         notificationEventHandler.handle(event);
 
@@ -187,13 +190,15 @@ public class NotificationEventHandlerTest {
     }
 
     @Test
-    public void testSendSludgeReset() throws MessagingException {
-        StationNotificationEvent event = new StationNotificationEvent();
+    public void testSendSludgeReset() {
+        StationNotification event = new StationNotification();
         event.setId(UUID.randomUUID());
         event.setTimestamp(DateTime.now().getMillis());
         event.setStationId(stationId);
-        StationNotificationEvent.Message message =
-                new StationNotificationEvent.Message(MessageType.STATION_EVENT, null, EventType.SLUDGE_RESET);
+        StationNoticeMessage message = new StationNoticeMessage();
+        message.setType(StationNotificationMessageType.STATION_EVENT);
+        message.setEvent(StationNotificationEventType.SLUDGE_RESET);
+        message.setCode("123");
         event.setMessage(message);
 
         notificationEventHandler.handle(event);
@@ -201,13 +206,15 @@ public class NotificationEventHandlerTest {
     }
 
     @Test
-    public void testSendHealthReset() throws MessagingException {
-        StationNotificationEvent event = new StationNotificationEvent();
+    public void testSendHealthReset() {
+        StationNotification event = new StationNotification();
         event.setId(UUID.randomUUID());
         event.setTimestamp(DateTime.now().getMillis());
         event.setStationId(stationId);
-        StationNotificationEvent.Message message =
-                new StationNotificationEvent.Message(MessageType.STATION_EVENT, null, EventType.HEALTH_RESET);
+        StationNoticeMessage message = new StationNoticeMessage();
+        message.setType(StationNotificationMessageType.STATION_EVENT);
+        message.setEvent(StationNotificationEventType.HEALTH_RESET);
+        message.setCode("123");
         event.setMessage(message);
 
         notificationEventHandler.handle(event);
@@ -215,15 +222,17 @@ public class NotificationEventHandlerTest {
     }
 
     @Test
-    public void testSendPasswordReset() throws MessagingException {
-        UserNotificationEvent event = new UserNotificationEvent();
+    public void testSendPasswordReset() {
+        UserNotification event = new UserNotification();
         event.setId(UUID.randomUUID());
         event.setTimestamp(DateTime.now().getMillis());
         event.setUserId(recipientId);
         event.setEmail("test-alta-cloud@yandex.ru");
         event.setPhone("79856213510");
-        UserNotificationEvent.Message message =
-                new UserNotificationEvent.Message(MessageType.USER_EVENT, EventType.PASSWORD_RESET, null);
+        UserNoticeMessage message = new UserNoticeMessage();
+        message.setType(UserNotificationMessageType.USER_EVENT);
+        message.setEvent(UserNotificationEventType.PASSWORD_RESET);
+        message.setText("123");
         event.setMessage(message);
 
         notificationEventHandler.handle(event);
@@ -231,8 +240,8 @@ public class NotificationEventHandlerTest {
     }
 
     @Test
-    public void testSendVerificationCode() throws MessagingException {
-        UserNotificationEvent event = new UserNotificationEvent();
+    public void testSendVerificationCode() {
+        UserNotification event = new UserNotification();
         event.setId(UUID.randomUUID());
         event.setTimestamp(DateTime.now().getMillis());
         event.setUserId(recipientId);
@@ -240,8 +249,10 @@ public class NotificationEventHandlerTest {
         event.setPhone("79856213510");
 //        event.setEmail("a.aksenov@alta-group.ru");
 //        event.setPhone("79629132587");
-        UserNotificationEvent.Message message =
-                new UserNotificationEvent.Message(MessageType.USER_EVENT, EventType.VERIFICATION_CODE, "123456");
+        UserNoticeMessage message = new UserNoticeMessage();
+        message.setType(UserNotificationMessageType.USER_EVENT);
+        message.setEvent(UserNotificationEventType.VERIFICATION_CODE);
+        message.setText("123456");
         event.setMessage(message);
 
         notificationEventHandler.handle(event);

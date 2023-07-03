@@ -1,0 +1,58 @@
+{
+  "name": "StationNotification",
+  "namespace": "ru.altacloud.v2.avro",
+  "type": "record",
+  "fields": [
+    {
+      "name": "id",
+      "type": { "logicalType": "uuid", "type": "string" }
+    },
+    {
+      "name": "timestamp",
+      "type": "long"
+    },
+    {
+      "name": "stationId",
+      "aliases": ["station_id"],
+      "type": { "logicalType": "uuid", "type": "string" }
+    },
+    {
+      "name": "message",
+      "type": {
+        "name": "StationNoticeMessage",
+        "namespace": "ru.altacloud.v2.avro",
+        "type": "record",
+        "fields": [
+          {
+            "name": "type",
+            "type": {
+              "name": "StationNotificationMessageType",
+              "namespace": "ru.altacloud.v2.avro",
+              "type": "enum",
+              "symbols": ["SUBSCRIPTION_NOTIFICATION_MAINTAINER", "SUBSCRIPTION_NOTIFICATION_USER", "UNSUBSCRIPTION_NOTIFICATION_MAINTAINER",
+              "UNSUBSCRIPTION_NOTIFICATION_USER", "ERROR_EVENT", "MAINTAINER_NOTIFICATION", "LICENCE_NOTIFICATION_MAINTAINER", "STATION_EVENT"]
+            }
+          },
+          {
+            "name": "code",
+            "type": "string"
+          },
+          {
+            "name": "event",
+            "type": {
+              "name": "StationNotificationEventType",
+              "namespace": "ru.altacloud.v2.avro",
+              "type": "enum",
+              "symbols": ["HEALTH_RESET", "SLUDGE_RESET", "ERROR", "EQUIPMENT_REPLACEMENT"]
+            }
+          },
+          {
+            "name": "advanced",
+            "type": ["null", {"type": "map", "values": "string"}],
+            "default": null
+          }
+        ]
+      }
+    }
+  ]
+}

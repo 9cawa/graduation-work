@@ -2,10 +2,11 @@ package ru.altagroup.notificationcenter.handlers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import ru.altacloud.v2.avro.UserEvent;
 import ru.altagroup.notificationcenter.entities.NoticeSetting;
 import ru.altagroup.notificationcenter.entities.Recipient;
 import ru.altagroup.notificationcenter.entities.Station;
-import ru.altagroup.notificationcenter.events.UserEvent;
 import ru.altagroup.notificationcenter.repositories.DndRepository;
 import ru.altagroup.notificationcenter.repositories.NoticeSettingRepository;
 import ru.altagroup.notificationcenter.repositories.RecipientRepository;
@@ -25,6 +26,7 @@ public class RecipientDeleteEventHandler implements RecipientEventHandler {
     private final NoticeSettingRepository noticeSettingRepository;
 
     @Override
+    @Transactional
     public void handle(UserEvent event) {
         UUID id = event.getId();
         Optional<Recipient> recipient = recipientRepository.findById(id);

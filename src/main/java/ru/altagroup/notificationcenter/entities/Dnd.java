@@ -1,9 +1,9 @@
 package ru.altagroup.notificationcenter.entities;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.UUID;
@@ -18,7 +18,7 @@ public class Dnd {
     @GeneratedValue
     private UUID id;
     @Column(nullable = false)
-    private boolean isActive = Boolean.FALSE;
+    private Boolean isActive = Boolean.FALSE;
     @Column
     private LocalTime startTime;
     @Column

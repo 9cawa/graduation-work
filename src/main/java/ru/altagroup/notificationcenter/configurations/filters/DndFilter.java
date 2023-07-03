@@ -30,7 +30,7 @@ public class DndFilter implements ChainFilter {
 
     //true -> не отправлять, false -> отправлять
     private boolean doNotDisturb(LocalDateTime dateTime, Dnd dnd) {
-        if (!dnd.isActive() && (dnd.getStartTime() == null || dnd.getEndTime() == null)) return false;
+        if (!dnd.getIsActive() && (dnd.getStartTime() == null || dnd.getEndTime() == null)) return false;
         ZoneId userZoneId = ZoneId.of(dnd.getZoneId());
         LocalDateTime now = dateTime.atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
         LocalDateTime begin = LocalDateTime.of(LocalDate.now(), dnd.getStartTime()).atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();

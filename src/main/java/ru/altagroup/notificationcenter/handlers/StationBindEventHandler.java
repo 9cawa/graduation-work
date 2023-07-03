@@ -2,9 +2,9 @@ package ru.altagroup.notificationcenter.handlers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.altacloud.v2.avro.StationBindingEvent;
 import ru.altagroup.notificationcenter.entities.Recipient;
 import ru.altagroup.notificationcenter.entities.Station;
-import ru.altagroup.notificationcenter.events.StationBindingEvent;
 import ru.altagroup.notificationcenter.repositories.RecipientRepository;
 import ru.altagroup.notificationcenter.repositories.StationRepository;
 
@@ -23,7 +23,7 @@ public class StationBindEventHandler implements StationEventHandler {
         if (recipient.isPresent()) {
             Station station = new Station();
             station.setId(event.getStationId());
-            station.setName(event.getName());
+            station.setName(event.getName().toString());
             station.setRecipient(recipient.get());
 
             stationRepository.save(station);

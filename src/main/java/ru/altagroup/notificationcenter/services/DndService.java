@@ -20,17 +20,17 @@ public class DndService {
         Dnd dnd = dndRepository.findByRecipient_Id(recipientId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден с идентификатором: " + recipientId));
 
-        return new DndResponse(recipientId, dnd.isActive(), dnd.getStartTime(), dnd.getEndTime(), dnd.getZoneId());
+        return new DndResponse(recipientId, dnd.getIsActive(), dnd.getStartTime(), dnd.getEndTime(), dnd.getZoneId());
     }
 
     public DndResponse setByRecipient(UUID recipientId, DndRequest dndRequest) {
         Dnd dnd = dndRepository.findByRecipient_Id(recipientId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден с идентификатором: " + recipientId));
-        dnd.setActive(dndRequest.isActive());
+        dnd.setIsActive(dndRequest.isActive());
         dnd.setZoneId(dndRequest.getZoneId().toString());
         dnd.setStartTime(dndRequest.getBegin());
         dnd.setEndTime(dndRequest.getEnd());
         Dnd save = dndRepository.save(dnd);
-        return new DndResponse(recipientId, save.isActive(), save.getStartTime(), save.getEndTime(), dnd.getZoneId());
+        return new DndResponse(recipientId, save.getIsActive(), save.getStartTime(), save.getEndTime(), dnd.getZoneId());
     }
 }

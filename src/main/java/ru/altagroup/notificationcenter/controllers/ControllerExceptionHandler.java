@@ -1,5 +1,6 @@
 package ru.altagroup.notificationcenter.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +14,6 @@ import ru.altagroup.notificationcenter.exceptions.ClientApiException;
 import ru.altagroup.notificationcenter.exceptions.ExceptionMessage;
 import ru.altagroup.notificationcenter.exceptions.NotFoundException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 
 @ControllerAdvice(basePackages = {"ru.altagroup.notificationcenter.controllers"})

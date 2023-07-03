@@ -1,9 +1,9 @@
 package ru.altagroup.notificationcenter.factory;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import ru.altagroup.notificationcenter.dto.SmsTemplate;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

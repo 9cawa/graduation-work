@@ -3,6 +3,7 @@ package ru.altagroup.notificationcenter.factory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
@@ -99,7 +100,7 @@ public class ErrorMessageFactory extends MimeMessageCreator implements MessageFa
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, handleClientErrorResponse())
-                .onStatus(HttpStatus::is5xxServerError, handleServerErrorResponse())
+                .onStatus(HttpStatusCode::is5xxServerError, handleServerErrorResponse())
                 .bodyToMono(ErrorCode.class)
                 .retryWhen(getRetryPolicy())
                 .onErrorStop()

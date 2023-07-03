@@ -56,7 +56,7 @@ public class EmailIntegrationTest {
         stationRepository.save(station);
 
         Dnd dnd = new Dnd();
-        dnd.setActive(false);
+        dnd.setIsActive(false);
         dnd.setRecipient(savedRecipient);
         dndRepository.save(dnd);
 

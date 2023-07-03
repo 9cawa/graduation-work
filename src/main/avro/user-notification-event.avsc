@@ -1,0 +1,60 @@
+{
+  "name": "UserNotification",
+  "namespace": "ru.altacloud.v2.avro",
+  "type": "record",
+  "fields": [
+    {
+      "name": "id",
+      "type": { "logicalType": "uuid", "type": "string" }
+    },
+    {
+      "name": "timestamp",
+      "type": "long"
+    },
+    {
+      "name": "userId",
+      "aliases": ["user_id"],
+      "type": { "logicalType": "uuid", "type": "string" }
+    },
+    {
+      "name": "email",
+      "type": "string"
+    },
+    {
+      "name": "phone",
+      "type": "string"
+    },
+    {
+      "name": "message",
+      "type": {
+        "name": "UserNoticeMessage",
+        "namespace": "ru.altacloud.v2.avro",
+        "type": "record",
+        "fields": [
+          {
+            "name": "type",
+            "type": {
+              "name": "UserNotificationMessageType",
+              "namespace": "ru.altacloud.v2.avro",
+              "type": "enum",
+              "symbols": ["USER_EVENT"]
+            }
+          },
+          {
+            "name": "event",
+            "type": {
+              "name": "UserNotificationEventType",
+              "namespace": "ru.altacloud.v2.avro",
+              "type": "enum",
+              "symbols": ["VERIFICATION_CODE", "PASSWORD_RESET"]
+            }
+          },
+          {
+            "name": "text",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}

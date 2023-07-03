@@ -2,6 +2,7 @@ package ru.altagroup.notificationcenter.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,6 @@ import ru.altagroup.notificationcenter.dto.DndRequest;
 import ru.altagroup.notificationcenter.dto.DndResponse;
 import ru.altagroup.notificationcenter.services.DndService;
 
-import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController

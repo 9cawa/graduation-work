@@ -3,12 +3,18 @@ package ru.altagroup.notificationcenter.handlers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.altacloud.v2.avro.StationNoticeMessage;
+import ru.altacloud.v2.avro.StationNotification;
+import ru.altacloud.v2.avro.UserNoticeMessage;
+import ru.altacloud.v2.avro.UserNotification;
 import ru.altagroup.notificationcenter.entities.EventType;
+import ru.altagroup.notificationcenter.entities.MessageType;
 import ru.altagroup.notificationcenter.events.NotificationEvent;
-import ru.altagroup.notificationcenter.events.StationNotificationEvent;
-import ru.altagroup.notificationcenter.events.UserNotificationEvent;
 
-import javax.mail.MessagingException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +23,9 @@ public class NotificationEventHandler {
 
     private final NotificationStrategySelector notificationStrategySelector;
 
-    public void handle(StationNotificationEvent event) throws MessagingException {
-        StationNotificationEvent.Message eventMessage = event.getMessage();
-        EventType eventType = eventMessage.getEvent();
+    public void handle(StationNotification event) {
+        StationNoticeMessage eventMessage = event.getMessage();
+        EventType eventType = EventType.valueOf(eventMessage.getEvent().name());
         NotificationStrategy notificationStrategy = notificationStrategySelector.selectStrategyByEventType(eventType);
 
         NotificationEvent notificationEvent = new NotificationEvent();
@@ -27,20 +33,24 @@ public class NotificationEventHandler {
         notificationEvent.setTargetRecipientId(event.getStationId());
         notificationEvent.setTimestamp(event.getTimestamp());
 
+        Map<String, String> advanced = Optional.ofNullable(eventMessage.getAdvanced())
+                .orElseGet(HashMap::new).entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+
         NotificationEvent.Message message = new NotificationEvent.Message();
-        message.setEvent(eventMessage.getEvent());
-        message.setAdvanced(eventMessage.getAdvanced());
-        message.setText(eventMessage.getCode());
-        message.setType(eventMessage.getType());
+        message.setEvent(EventType.valueOf(eventMessage.getEvent().name()));
+        message.setAdvanced(advanced);
+        message.setText(eventMessage.getCode().toString());
+        message.setType(MessageType.valueOf(eventMessage.getType().toString()));
 
         notificationEvent.setMessage(message);
 
         notificationStrategy.notify(notificationEvent);
     }
 
-    public void handle(UserNotificationEvent event) throws MessagingException {
-        UserNotificationEvent.Message eventMessage = event.getMessage();
-        EventType eventType = eventMessage.getEvent();
+    public void handle(UserNotification event) {
+        UserNoticeMessage eventMessage = event.getMessage();
+        EventType eventType = EventType.valueOf(eventMessage.getEvent().name());
         NotificationStrategy notificationStrategy = notificationStrategySelector.selectStrategyByEventType(eventType);
 
         NotificationEvent notificationEvent = new NotificationEvent();
@@ -49,9 +59,9 @@ public class NotificationEventHandler {
         notificationEvent.setTimestamp(event.getTimestamp());
 
         NotificationEvent.Message message = new NotificationEvent.Message();
-        message.setEvent(eventMessage.getEvent());
-        message.setText(eventMessage.getText());
-        message.setType(eventMessage.getType());
+        message.setEvent(EventType.valueOf(eventMessage.getEvent().name()));
+        message.setText(eventMessage.getText().toString());
+        message.setType(MessageType.valueOf(eventMessage.getType().toString()));
 
         notificationEvent.setMessage(message);
         notificationStrategy.notify(notificationEvent);

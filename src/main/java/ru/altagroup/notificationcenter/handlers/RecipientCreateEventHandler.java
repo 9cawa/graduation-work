@@ -2,11 +2,9 @@ package ru.altagroup.notificationcenter.handlers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.altagroup.notificationcenter.entities.Dnd;
-import ru.altagroup.notificationcenter.entities.Notice;
-import ru.altagroup.notificationcenter.entities.NoticeSetting;
-import ru.altagroup.notificationcenter.entities.Recipient;
-import ru.altagroup.notificationcenter.events.UserEvent;
+import org.springframework.transaction.annotation.Transactional;
+import ru.altacloud.v2.avro.UserEvent;
+import ru.altagroup.notificationcenter.entities.*;
 import ru.altagroup.notificationcenter.repositories.DndRepository;
 import ru.altagroup.notificationcenter.repositories.NoticeSettingRepository;
 import ru.altagroup.notificationcenter.repositories.RecipientRepository;
@@ -24,14 +22,15 @@ public class RecipientCreateEventHandler implements RecipientEventHandler {
     private final NoticeSettingRepository noticeSettingRepository;
 
     @Override
+    @Transactional
     public void handle(UserEvent event) {
         if (!recipientRepository.existsById(event.getId())) {
             Recipient recipient = new Recipient();
             recipient.setId(event.getId());
-            recipient.setFullName(event.getFullName());
-            recipient.setType(event.getType());
-            recipient.setEmail(event.getEmail());
-            recipient.setPhone(event.getPhone());
+            recipient.setFullName(event.getFullName().toString());
+            recipient.setType(RecipientType.valueOf(event.getType().name()));
+            recipient.setEmail(event.getEmail().toString());
+            recipient.setPhone(event.getPhone().toString());
 
             Recipient saved = recipientRepository.save(recipient);
             saved.setDnd(defaultDndSettings());
@@ -42,7 +41,7 @@ public class RecipientCreateEventHandler implements RecipientEventHandler {
 
     private Dnd defaultDndSettings() {
         Dnd dnd = new Dnd();
-        dnd.setActive(true);
+        dnd.setIsActive(true);
         dnd.setStartTime(LocalTime.of(22, 0));
         dnd.setEndTime(LocalTime.of(8,30));
         return dndRepository.save(dnd);

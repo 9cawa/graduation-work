@@ -3,7 +3,7 @@ package ru.altagroup.notificationcenter.factory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 import ru.altagroup.notificationcenter.dto.EmailMessage;
 import ru.altagroup.notificationcenter.entities.MessageType;
 

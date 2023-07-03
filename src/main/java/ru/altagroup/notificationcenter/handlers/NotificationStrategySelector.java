@@ -25,6 +25,11 @@ public class NotificationStrategySelector {
         return optionalStrategy.orElseThrow(() -> new NotFoundException("Strategy not found by event type: " + eventType.name()));
     }
 
+//    public NotificationStrategy selectStrategyByEventType(EventType eventType) {
+//        Optional<NotificationStrategy> optionalStrategy = Optional.ofNullable(strategyMap().get(eventType));
+//        return optionalStrategy.orElseThrow(() -> new NotFoundException("Strategy not found by event type: " + eventType.name()));
+//    }
+
     private HashMap<EventType, NotificationStrategy> strategyMap() {
         return new HashMap<>() {{
             put(EventType.EQUIPMENT_REPLACEMENT, equipmentReplacementNotificationStrategy);

@@ -1,6 +1,6 @@
 package ru.altagroup.notificationcenter.handlers;
 
-import ru.altagroup.notificationcenter.events.StationBindingEvent;
+import ru.altacloud.v2.avro.StationBindingEvent;
 
 public interface StationEventHandler {
     void handle(StationBindingEvent event);

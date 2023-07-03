@@ -1,5 +1,7 @@
 package ru.altagroup.notificationcenter.configurations;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -10,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.mail.MailSendingMessageHandler;
 import org.springframework.integration.transformer.Transformer;
@@ -32,7 +33,6 @@ import ru.altagroup.notificationcenter.factory.MessageFactory;
 import ru.altagroup.notificationcenter.factory.MessageFactoryBuilder;
 import ru.altagroup.notificationcenter.repositories.NotificationRepository;
 
-import javax.mail.internet.MimeMessage;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -65,7 +65,7 @@ public class IntegrationConfiguration {
 
     @Bean
     public IntegrationFlow emailFlow() {
-        return IntegrationFlows.from("sendEmailChannel")
+        return IntegrationFlow.from("sendEmailChannel")
                 .filter(mainEmailFilter, "accept")
                 .intercept(saveNotificationBeforeSendEmail())
                 .transform(mimeMessageTransformer())
@@ -113,7 +113,7 @@ public class IntegrationConfiguration {
                 assert recipient != null;
                 MimeMessage mimeMessage = messageFactory.createEmail(recipient.getEmail(), message.getText());
                 return new GenericMessage<>(mimeMessage, headers);
-            } catch (javax.mail.MessagingException e) {
+            } catch (MessagingException e) {
                 throw new RuntimeException(e);
             }
         };
@@ -121,13 +121,11 @@ public class IntegrationConfiguration {
 
     @Bean
     public IntegrationFlow smsFlow() {
-        return IntegrationFlows.from("sendSmsChannel")
-                .enrichHeaders(enricherSpec -> {
-                    enricherSpec
-                            .headerExpression("type", "payload.eventType")
-                            .headerExpression("message", "payload.text")
-                            .headerExpression("event_id", "payload.id");
-                })
+        return IntegrationFlow.from("sendSmsChannel")
+                .enrichHeaders(enricherSpec -> enricherSpec
+                        .headerExpression("type", "payload.eventType")
+                        .headerExpression("message", "payload.text")
+                        .headerExpression("event_id", "payload.id"))
                 .filter(mainSmsFilter, "accept")
                 .transform(smsTransformer())
                 .handle(Http.outboundGateway("/sms/v1/sms", restTemplate)

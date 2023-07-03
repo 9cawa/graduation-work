@@ -2,7 +2,6 @@ package ru.altagroup.notificationcenter.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import ru.altagroup.notificationcenter.dto.ServiceNotificationDto;
 import ru.altagroup.notificationcenter.dto.UpdateServiceNotificationDto;
@@ -10,14 +9,10 @@ import ru.altagroup.notificationcenter.entities.Notice;
 import ru.altagroup.notificationcenter.entities.NoticeFrequency;
 import ru.altagroup.notificationcenter.entities.NoticeSetting;
 import ru.altagroup.notificationcenter.entities.Recipient;
-import ru.altagroup.notificationcenter.events.StationNotificationEvent;
-import ru.altagroup.notificationcenter.events.UserNotificationEvent;
 import ru.altagroup.notificationcenter.exceptions.NotFoundException;
-import ru.altagroup.notificationcenter.handlers.NotificationEventHandler;
 import ru.altagroup.notificationcenter.repositories.NoticeSettingRepository;
 import ru.altagroup.notificationcenter.repositories.RecipientRepository;
 
-import javax.mail.MessagingException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -26,28 +21,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
-
-    private final NotificationEventHandler eventHandler;
     private final RecipientRepository recipientRepository;
     private final NoticeSettingRepository noticeSettingRepository;
-
-    @KafkaListener(id = "stationNotificationEventListener", topics = "${spring.kafka.topics.notifications.stations}", containerFactory = "stationNotificationEventContainerFactory")
-    public void notifyStationEvent(StationNotificationEvent event) throws MessagingException {
-        try {
-            eventHandler.handle(event);
-        } catch (IllegalArgumentException e) {
-            log.error("Receive unknown event: {}", event);
-        }
-    }
-
-    @KafkaListener(topics = "${spring.kafka.topics.notifications.users}", containerFactory = "userNotificationEventContainerFactory")
-    public void notifyUserEvent(UserNotificationEvent event) throws MessagingException {
-        try {
-            eventHandler.handle(event);
-        } catch (IllegalArgumentException e) {
-            log.error("Receive unknown event: {}", event);
-        }
-    }
 
     public List<ServiceNotificationDto> getNotificationsSettings(UUID recipientId) {
         Recipient recipient = recipientRepository.findById(recipientId)

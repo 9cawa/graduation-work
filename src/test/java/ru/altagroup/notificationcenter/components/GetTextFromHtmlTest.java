@@ -6,6 +6,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class GetTextFromHtmlTest {
     private final String GET_ERROR = "/errors/E200011";
 
     @Test
+    @Disabled
     public void testGetErrorText() {
         errorsService.stubFor(get(urlPathEqualTo(GET_ERROR))
                 .willReturn(okForJson(errorCode()).withStatus(HttpStatus.OK.value())

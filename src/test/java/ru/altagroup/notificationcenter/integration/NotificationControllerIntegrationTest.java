@@ -5,16 +5,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.altacloud.v2.avro.UserEvent;
+import ru.altacloud.v2.avro.UserEventType;
+import ru.altacloud.v2.avro.UserType;
 import ru.altagroup.notificationcenter.AuthenticationTestService;
 import ru.altagroup.notificationcenter.dto.UpdateServiceNotificationDto;
-import ru.altagroup.notificationcenter.entities.RecipientType;
-import ru.altagroup.notificationcenter.events.UserEvent;
-import ru.altagroup.notificationcenter.services.RecipientService;
+import ru.altagroup.notificationcenter.handlers.RecipientEventHandler;
 
 import java.util.UUID;
 
@@ -34,7 +36,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class NotificationControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
-    @Autowired private RecipientService recipientService;
+    @Qualifier("recipientCreateEventHandler")
+    @Autowired private RecipientEventHandler createHandler;
+    @Qualifier("recipientDeleteEventHandler")
+    @Autowired private RecipientEventHandler deleteHandler;
     private final AuthenticationTestService authenticationTestService = new AuthenticationTestService();
 
     private final String GET_NOTIFICATION_SETTINGS = "/recipients/notices";
@@ -45,24 +50,24 @@ public class NotificationControllerIntegrationTest {
     public void setup() {
         UserEvent event = new UserEvent();
         event.setId(recipientId);
-        event.setType(RecipientType.INDIVIDUAL_PERSON);
+        event.setType(UserType.INDIVIDUAL_PERSON);
         event.setFullName("Aleksandr Aksenov");
         event.setEmail("test@test.ru");
         event.setPhone("79998887766");
-        event.setEvent("CREATE");
-        recipientService.listenUserEvent(event);
+        event.setEvent(UserEventType.CREATE);
+        createHandler.handle(event);
     }
 
     @AfterEach
     public void tearDown() {
         UserEvent deleteEvent = new UserEvent();
         deleteEvent.setId(recipientId);
-        deleteEvent.setType(RecipientType.INDIVIDUAL_PERSON);
+        deleteEvent.setType(UserType.INDIVIDUAL_PERSON);
         deleteEvent.setFullName("Aleksandr Aksenov");
         deleteEvent.setEmail("test@test.ru");
         deleteEvent.setPhone("79998887766");
-        deleteEvent.setEvent("DELETE");
-        recipientService.listenUserEvent(deleteEvent);
+        deleteEvent.setEvent(UserEventType.DELETE);
+        deleteHandler.handle(deleteEvent);
     }
 
     @Test

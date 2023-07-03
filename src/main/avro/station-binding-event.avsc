@@ -1,0 +1,23 @@
+{
+  "namespace": "ru.altacloud.v2.avro",
+  "name": "StationBindingEvent",
+  "type": "record",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "station_id",
+      "type": {"logicalType": "uuid", "type": "string"}
+    },
+    {
+      "name": "owner_id",
+      "type": {"logicalType": "uuid", "type": "string"}
+    },
+    {
+      "name": "event",
+      "type": {"type": "enum", "symbols": ["BIND", "UNBIND"], "name": "BindType"}
+    }
+  ]
+}

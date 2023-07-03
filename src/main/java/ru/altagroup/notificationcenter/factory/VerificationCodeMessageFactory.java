@@ -1,10 +1,9 @@
 package ru.altagroup.notificationcenter.factory;
 
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
-
-import javax.mail.internet.MimeMessage;
 
 @Component
 @RequiredArgsConstructor

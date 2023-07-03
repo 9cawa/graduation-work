@@ -1,7 +1,5 @@
 package ru.altagroup.notificationcenter.handlers;
 
-import ru.altagroup.notificationcenter.events.UserEvent;
-
 public interface RecipientEventHandler {
-    void handle(UserEvent event);
+    void handle(ru.altacloud.v2.avro.UserEvent event);
 }

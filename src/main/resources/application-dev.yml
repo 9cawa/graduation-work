@@ -1,8 +1,10 @@
+dev.server: docker.alta-group.ru
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/notification_center
-    username: **********
-    password: **********
+    username: ******************
+    password: ******************
   jpa:
     hibernate:
       ddl-auto: create
@@ -18,29 +20,56 @@ spring:
       client:
         registration:
           keycloak:
-            client-id: ***************
-            client-secret: *******************
+            client-id: ******************
+            client-secret: ******************
             authorization-grant-type: client_credentials
         provider:
           keycloak:
             issuer-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-dev
             token-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-dev/protocol/openid-connect/token
-  kafka:
-    bootstrap-servers: localhost:19092
-    consumer:
-      group-id: ${spring.application.name}-group-01
-      client-id: ${spring.application.name}
-    topics:
-      binding: test.altacloud.binding.stations
-      cdc:
-        users: test.altacloud.users.cdc
-        dealers: test.altacloud.dealers.cdc
-      notifications:
-        stations: test.altacloud.notifications.stations
-        users: test.altacloud.notifications.users
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: docker.alta-group.ru:19092,docker.alta-group.ru:19093,docker.alta-group.ru:19094
+          autoCreateTopics: true
+          minPartitionCount: 3
+          replicationFactor: 2
+          consumerProperties:
+            schema.registry.url: http://${dev.server}:8081
+            auto.register.schemas: false
+            use.latest.version: true
+            specific.avro.reader: true
+            value.subject.name.strategy: io.confluent.kafka.serializers.subject.RecordNameStrategy
+            value.deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+            key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        bindings:
+          consumeStationNotification-in-0:
+            consumer:
+              enableDlq: true
+              dlqName: test.altacloud.notifications.stations.avro.dlq
+          consumeUserNotification-in-0:
+            consumer:
+              enableDlq: true
+              dlqName: test.altacloud.notifications.users.avro.dlq
+      bindings:
+        consumeUserEvent-in-0:
+          group: ${spring.application.name}
+          destination: test.altacloud.users.cdc.avro,test.altacloud.dealers.cdc.avro
+        consumeStationEvent-in-0:
+          group: ${spring.application.name}
+          destination: test.altacloud.binding.stations.avro
+        consumeStationNotification-in-0:
+          group: ${spring.application.name}
+          destination: test.altacloud.notifications.stations.avro
+        consumeUserNotification-in-0:
+          group: ${spring.application.name}
+          destination: test.altacloud.notifications.users.avro
+
   mail:
-    username: ****************
-    password: ****************
+    username: ******************
+    password: ******************
     host: smtp.beget.ru
     port: 465
     properties:

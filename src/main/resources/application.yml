@@ -17,4 +17,4 @@ spring:
 sms:
   api:
     url: https://a2p-api.megalabs.ru
-    auth: Basic ********************
+    auth: Basic ******************

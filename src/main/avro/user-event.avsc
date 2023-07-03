@@ -1,0 +1,31 @@
+{
+  "namespace": "ru.altacloud.v2.avro",
+  "name": "UserEvent",
+  "type": "record",
+  "fields": [
+    {
+      "name": "id",
+      "type": {"logicalType": "uuid", "type": "string"}
+    },
+    {
+      "name": "type",
+      "type": {"type": "enum", "symbols": ["COMPANY", "INDIVIDUAL_PERSON", "DEALER"], "name": "UserType"}
+    },
+    {
+      "name": "fullName",
+      "type": "string"
+    },
+    {
+      "name": "email",
+      "type": "string"
+    },
+    {
+      "name": "phone",
+      "type": "string"
+    },
+    {
+      "name": "event",
+      "type": {"type": "enum", "symbols": ["CREATE", "DELETE"], "name": "UserEventType"}
+    }
+  ]
+}

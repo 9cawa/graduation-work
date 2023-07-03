@@ -15,9 +15,6 @@ import ru.altagroup.notificationcenter.exceptions.ClientApiException;
 import java.io.IOException;
 import java.time.Duration;
 
-import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
-import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
-
 @Configuration
 @Slf4j
 public class SmsRestTemplateConfiguration {
@@ -45,7 +42,7 @@ public class SmsRestTemplateConfiguration {
         return new ResponseErrorHandler() {
             @Override
             public boolean hasError(ClientHttpResponse response) throws IOException {
-                return response.getStatusCode().series().equals(SERVER_ERROR) || response.getStatusCode().series().equals(CLIENT_ERROR);
+                return response.getStatusCode().is5xxServerError() || response.getStatusCode().is4xxClientError();
             }
 
             @Override
