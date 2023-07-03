@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: altacloud-v2-notification-deployment
+  namespace: staging
+  labels:
+    app : altacloud-v2-notification-deployment
+    env : stage
+    owner : PletnevNikolay
+spec:
+  selector:
+    matchLabels:
+      app: altacloud-v2-notification
+  template: # POD configuration
+    metadata:
+      labels:
+        app: altacloud-v2-notification # Use for service selector
+        project: altacloud-v2
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: altacloud-v2-notification
+        image: ghcr.io/alta-soft/altacloud-v2-notification:BUILD_NUMBER
+        imagePullPolicy: Always
+        env:
+          - name: PROFILE
+            value: stage
+        volumeMounts:
+          - name: logs-volume
+            mountPath: /app/logs
+      imagePullSecrets:
+      - name: github-docker-registry
+      volumes:
+        - name : logs-volume
+          hostPath:
+            path: /mnt/logs
+            type: DirectoryOrCreate
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: altacloud-v2-notification
+  namespace: staging
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8086
+    protocol: TCP
+    name: tcp-server-port
+    targetPort: 8086
+  selector:
+    app: altacloud-v2-notification

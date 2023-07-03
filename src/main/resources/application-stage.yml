@@ -1,0 +1,60 @@
+spring:
+  datasource:
+    url: ****************
+    username: ***********
+    password: ***********
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    baseline-on-migrate: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-stage
+          jwk-set-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-stage/protocol/openid-connect/certs
+      client:
+        registration:
+          keycloak:
+            client-id: ***************
+            client-secret: *****************
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-stage
+            token-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-stage/protocol/openid-connect/token
+  kafka:
+    bootstrap-servers: confluent-cp-kafka-headless.kafka:9092
+    consumer:
+      group-id: ${spring.application.name}-group-01
+      client-id: ${spring.application.name}
+    topics:
+      binding: staging.altacloud.binding.stations
+      cdc:
+        users: staging.altacloud.users.cdc
+        dealers: staging.altacloud.dealers.cdc
+      notifications:
+        stations: staging.altacloud.notifications.stations
+        users: staging.altacloud.notifications.users
+  mail:
+    username: *****************
+    password: *****************
+    host: smtp.beget.ru
+    port: 465
+    properties:
+      smtp:
+        auth: true
+        socketFactory:
+          port: 465
+          class: javax.net.ssl.SSLSocketFactory
+
+springdoc:
+  show-actuator: false
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+errors-service:
+  url: altacloud-v2-errors:8090/errors/{code}

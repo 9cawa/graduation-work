@@ -1,0 +1,20 @@
+server:
+  port: 8086
+  error:
+    whitelabel:
+      enabled: false
+    include-stacktrace: never
+
+log:
+  path: logs
+
+spring:
+  application:
+    name: notification-center
+  profiles:
+    active: stage
+
+sms:
+  api:
+    url: https://a2p-api.megalabs.ru
+    auth: Basic ********************

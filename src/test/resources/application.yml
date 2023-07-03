@@ -1,0 +1,63 @@
+log:
+  path: logsTest
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:test;MODE=PostgreSQL
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  flyway:
+    baseline-on-migrate: true
+  application:
+    name: notification-center
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-dev
+          jwk-set-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-dev/protocol/openid-connect/certs
+      client:
+        registration:
+          keycloak:
+            client-id: ****************
+            client-secret: ***************************
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-dev
+            token-uri: https://cloud.alta-group.ru/iam/auth/realms/altacloud-dev/protocol/openid-connect/token
+  kafka:
+    bootstrap-servers: localhost:19092
+    consumer:
+      group-id: ${spring.application.name}-group-01
+      client-id: ${spring.application.name}
+    topics:
+      binding: test.altacloud.binding.stations
+      cdc:
+        users: test.altacloud.users.cdc
+        dealers: test.altacloud.dealers.cdc
+      notifications:
+        stations: test.altacloud.notifications.stations
+        users: test.altacloud.notifications.users
+  mail:
+    username: ********************
+    password: ********************
+    host: smtp.beget.ru
+    port: 465
+    properties:
+      smtp:
+        auth: true
+        socketFactory:
+          port: 465
+          class: javax.net.ssl.SSLSocketFactory
+
+sms:
+  api:
+    auth: Basic ********************
+    url: https://a2p-api.megalabs.ru
+
+errors-service:
+  url: localhost:8090/errors/{code}
